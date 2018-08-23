@@ -1,8 +1,14 @@
-# soduqler
-An abstract sudoku solver / study tool
+# sudojure
 
-## To Do
-- [ ] abstract shared logic between `eliminate` and `deduce`
-- [x] convert to boxes from abstract array
-- [x] include boxes in computation
-- [ ] convert to objects to skip resolved groups
+An abstract sudoku solver / study tool (in Clojure).
+
+## Usage
+
+[PENDING]
+
+## License
+
+Copyright © 2018
+
+Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.
