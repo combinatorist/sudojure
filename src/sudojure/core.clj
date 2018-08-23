@@ -1,19 +1,26 @@
 (ns sudojure.core
   (:use clojure.core.matrix))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn puzzle-value-list
+  "returns the cannonical values for an array"
+  [array-in]
+  (range 1 (+ (dimension-count array-in 0) 1)))
 
-; import numpy as np
-; import warnings
-;
-; box_shape    = (3, 3)
-; box_size     = box_shape[0] * box_shape[1]
-; puzzle_shape = (box_size,) * 2
-; puzzle_size  = box_size ** 2
-;
+(def default-box-shape [3 3])
+(def default-box-size (ecount (new-array default-box-shape)))
+
+(def default-puzzle-shape [default-box-size default-box-size])
+(def default-puzzle-size (ecount (new-array default-puzzle-shape)))
+(def default-puzzle-value-list (range default-puzzle-size))
+
+(defn abstract-sudoku-array
+  "creates boolean array with additional dimension representing values"
+  [sudoku-array]
+  (let [values (puzzle-value-list sudoku-array)
+        ; implementing 3 valued logic as [-1, 0, 1] for now
+        comparisons (map (fn [x] (eq sudoku-array x)) values)]
+       (array comparisons)))
+
 ; def load(file):
 ;     """
 ;     loads file
@@ -49,17 +56,6 @@
 ;     return int_array
 ;
 ;
-; def abstract_array(array, value_list = range(1, box_size + 1)):
-;     """
-;     creates boolean array with additional dimension representing values
-;     """
-;     array_list = []
-;     for i in value_list:
-;         array_list.append(array == i)
-;     boolean_array = np.stack(array_list)
-;     three_valued_array = np.asarray(boolean_array, dtype=object)
-;     three_valued_array[three_valued_array == False] = None
-;     return three_valued_array
 ;
 ; def to_int_array(array):
 ;     """

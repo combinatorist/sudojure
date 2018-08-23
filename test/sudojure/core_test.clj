@@ -1,15 +1,114 @@
 (ns sudojure.core-test
   (:require [clojure.test :refer :all]
+            [clojure.core.matrix :refer :all]
             [sudojure.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(def example-sudoku-array
+  (array [[0 0 0 8 4 7 0 5 0]
+          [0 0 5 0 0 0 2 0 7]
+          [0 4 0 0 6 0 0 3 0]
+          [0 0 0 0 7 0 3 0 0]
+          [3 0 0 0 0 0 0 0 2]
+          [0 0 7 0 1 0 0 0 0]
+          [0 5 0 0 9 0 0 1 0]
+          [8 0 4 0 0 0 5 0 0]
+          [0 1 0 6 8 5 0 0 0]]))
 
-; import unittest
-; import sudoqler as sud
-; import numpy as np
-; import pdb
+(def example-abstract-sudoku-array
+  (array [[[0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 1 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 1 0 0 0 0 0 0 0]]
+
+          [[0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 1 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 1]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]]
+
+          [[0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 1 0]
+           [0 0 0 0 0 0 1 0 0]
+           [1 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]]
+
+          [[0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 1 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 1 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]]
+
+          [[0 0 0 0 0 0 0 1 0]
+           [0 0 1 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 1 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 1 0 0]
+           [0 0 0 0 0 1 0 0 0]]
+
+          [[0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 1 0 0 0 0 0]]
+
+          [[0 0 0 0 0 1 0 0 0]
+           [0 0 0 0 0 0 0 0 1]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 1 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]]
+
+          [[0 0 0 1 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [1 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0]]
+
+          [[0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0]]]))
+
+(deftest abstract-sudoku-array-test
+  (testing "abstact-sudoku-array should convert from sudoku-array"
+    (is (= example-abstract-sudoku-array
+           (abstract-sudoku-array example-sudoku-array)))))
 ;
 ; example_one_line = '...847.5...5...2.7.4..6..3.....7.3..3.......2..7.1.....5..9..1.8.4...5...1.685...\n'
 ;
@@ -22,107 +121,6 @@
 ;                                ['.', '5', '.', '.', '9', '.', '.', '1', '.'],
 ;                                ['8', '.', '4', '.', '.', '.', '5', '.', '.'],
 ;                                ['.', '1', '.', '6', '8', '5', '.', '.', '.']])
-;
-; example_sudoku2d_int = np.asarray([[0, 0, 0, 8, 4, 7, 0, 5, 0],
-;                                    [0, 0, 5, 0, 0, 0, 2, 0, 7],
-;                                    [0, 4, 0, 0, 6, 0, 0, 3, 0],
-;                                    [0, 0, 0, 0, 7, 0, 3, 0, 0],
-;                                    [3, 0, 0, 0, 0, 0, 0, 0, 2],
-;                                    [0, 0, 7, 0, 1, 0, 0, 0, 0],
-;                                    [0, 5, 0, 0, 9, 0, 0, 1, 0],
-;                                    [8, 0, 4, 0, 0, 0, 5, 0, 0],
-;                                    [0, 1, 0, 6, 8, 5, 0, 0, 0]])
-;
-; example_sudoku3d_bool = np.asarray([
-;     [[None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, True, None, None, None, None],
-;      [None, None, None, None, None, None, None, True, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, True, None, None, None, None, None, None, None]],
-;
-;     [[None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, True, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, True],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None]],
-;
-;     [[None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, True, None],
-;      [None, None, None, None, None, None, True, None, None],
-;      [True, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None]],
-;
-;     [[None, None, None, None, True, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, True, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, True, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None]],
-;
-;     [[None, None, None, None, None, None, None, True, None],
-;      [None, None, True, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, True, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, True, None, None],
-;      [None, None, None, None, None, True, None, None, None]],
-;
-;     [[None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, True, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, True, None, None, None, None, None]],
-;
-;     [[None, None, None, None, None, True, None, None, None],
-;      [None, None, None, None, None, None, None, None, True],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, True, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, True, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None]],
-;
-;     [[None, None, None, True, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [True, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, True, None, None, None, None]],
-;
-;     [[None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, True, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None],
-;      [None, None, None, None, None, None, None, None, None]]])
 ;
 ; example_box_sudoku = ([[0, 0, 0, 0, 0, 5, 0, 4, 0],
 ;                        [8, 4, 7, 0, 0, 0, 0, 6, 0],
