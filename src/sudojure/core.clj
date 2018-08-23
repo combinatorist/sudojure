@@ -1,4 +1,5 @@
-(ns sudojure.core)
+(ns sudojure.core
+  (:use clojure.core.matrix))
 
 (defn foo
   "I don't do a whole lot."
