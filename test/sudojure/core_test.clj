@@ -105,11 +105,27 @@
            [0 0 0 0 0 0 0 0 0]
            [0 0 0 0 0 0 0 0 0]]]))
 
+(def example-box-sudoku
+  (array [[0, 0, 0, 0, 0, 5, 0, 4, 0],
+          [8, 4, 7, 0, 0, 0, 0, 6, 0],
+          [0, 5, 0, 2, 0, 7, 0, 3, 0],
+          [0, 0, 0, 3, 0, 0, 0, 0, 7],
+          [0, 7, 0, 0, 0, 0, 0, 1, 0],
+          [3, 0, 0, 0, 0, 2, 0, 0, 0],
+          [0, 5, 0, 8, 0, 4, 0, 1, 0],
+          [0, 9, 0, 0, 0, 0, 6, 8, 5],
+          [0, 1, 0, 5, 0, 0, 0, 0, 0]]))
+
 (deftest abstract-sudoku-array-test
   (testing "abstact-sudoku-array should convert from sudoku-array"
     (is (= example-abstract-sudoku-array
            (abstract-sudoku-array example-sudoku-array)))))
-;
+
+(deftest box-sudoku-test
+  (testing "box-sudoku should convert from abstract-sudoku-array"
+    (is (= example-box-sudoku))
+           (box-sudoku example-sudoku-array)))
+
 ; example_one_line = '...847.5...5...2.7.4..6..3.....7.3..3.......2..7.1.....5..9..1.8.4...5...1.685...\n'
 ;
 ; example_sudoku2d = np.asarray([['.', '.', '.', '8', '4', '7', '.', '5', '.'],
@@ -121,16 +137,6 @@
 ;                                ['.', '5', '.', '.', '9', '.', '.', '1', '.'],
 ;                                ['8', '.', '4', '.', '.', '.', '5', '.', '.'],
 ;                                ['.', '1', '.', '6', '8', '5', '.', '.', '.']])
-;
-; example_box_sudoku = ([[0, 0, 0, 0, 0, 5, 0, 4, 0],
-;                        [8, 4, 7, 0, 0, 0, 0, 6, 0],
-;                        [0, 5, 0, 2, 0, 7, 0, 3, 0],
-;                        [0, 0, 0, 3, 0, 0, 0, 0, 7],
-;                        [0, 7, 0, 0, 0, 0, 0, 1, 0],
-;                        [3, 0, 0, 0, 0, 2, 0, 0, 0],
-;                        [0, 5, 0, 8, 0, 4, 0, 1, 0],
-;                        [0, 9, 0, 0, 0, 0, 6, 8, 5],
-;                        [0, 1, 0, 5, 0, 0, 0, 0, 0]])
 ;
 ; example_partial_elimination = np.asarray(
 ;     [[ None, False,  None, False, False, False,  None, False,  None],
@@ -207,11 +213,6 @@
 ;           example_sudoku2d_int
 ;         )
 ;
-;     def test005_box_sudoku(self):
-;         np.testing.assert_equal(
-;           sud.box_sudoku(example_sudoku2d_int),
-;           example_box_sudoku
-;         )
 ;
 ;     def test005_rotate(self):
 ;         positional_3d_array = np.asarray(range(1, 9 ** 3 + 1)).reshape((9,) * 3)

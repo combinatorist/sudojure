@@ -21,6 +21,16 @@
         comparisons (map (fn [x] (eq sudoku-array x)) values)]
        (array comparisons)))
 
+(defn box-sudoku
+  "creates a view that indicates the boxes"
+  [abstract-sudoku]
+  ; First converts shape from 9 rows by 9 columns to (3, 3, 3, 3) [unit-rows]
+  (let [unit-row-sudoku
+          (reshape abstract-sudoku (concat default-box-shape default-box-shape))
+  ; Then, swaps middle 2 axes and converts to new (9, 9) [9 boxes by 9 cells]
+        transposed (transpose unit-row-sudoku [0 2 1 3])]
+       (reshape transposed default-puzzle-shape)))
+
 ; def load(file):
 ;     """
 ;     loads file
@@ -55,8 +65,6 @@
 ;     int_array = np.asarray(array, dtype=int)
 ;     return int_array
 ;
-;
-;
 ; def to_int_array(array):
 ;     """
 ;     reverses `abstract_array` function above
@@ -68,15 +76,6 @@
 ;         value_array[value_array == True] = index + 1
 ;
 ;     return sum(array)
-;
-; def box_sudoku(sudoku2d):
-;     """
-;     creates a view that indicates the boxes
-;     """
-;     # First converts shape from 9 rows by 9 columns to (3, 3, 3, 3) [unit_rows]
-;     unit_row_sudoku = sudoku2d.reshape(box_shape * 2)
-;     # Then, swaps middle 2 axes and converts to new (9, 9) [9 boxes by 9 cells]
-;     return np.swapaxes(unit_row_sudoku, -3, -2).reshape(puzzle_shape)
 ;
 ; def rotate(array):
 ;     """
