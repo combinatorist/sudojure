@@ -116,6 +116,17 @@
           [0, 9, 0, 0, 0, 0, 6, 8, 5],
           [0, 1, 0, 5, 0, 0, 0, 0, 0]]))
 
+(def example-partial-elimination
+  (array [[-1,  0, -1,  0,  0,  0, -1,  0, -1],
+          [-1,  0,  0, -1,  0, -1,  0,  0,  0],
+          [-1,  0, -1, -1,  0, -1, -1,  0, -1],
+          [-1,  0, -1, -1,  0, -1,  0,  0, -1],
+          [ 0,  0, -1, -1,  0, -1, -1,  0,  0],
+          [ 0,  0,  0,  0,  1,  0,  0,  0,  0],
+          [ 0,  0,  0,  0,  0,  0,  0,  1,  0],
+          [ 0,  0,  0, -1,  0, -1,  0,  0, -1],
+          [ 0,  1,  0,  0,  0,  0,  0,  0,  0]]))
+
 (deftest abstract-sudoku-array-test
   (testing "abstact-sudoku-array should convert from sudoku-array"
     (is (= example-abstract-sudoku-array
@@ -125,6 +136,24 @@
   (testing "box-sudoku should convert from abstract-sudoku-array"
     (is (= example-box-sudoku
            (box-sudoku example-sudoku-array)))))
+
+(deftest eliminate-test
+  (testing "eliminate should find a true to mark all unknowns false")
+    (let [result (eliminate example-abstract-sudoku-array)
+          comparison (cmp (slice result 0) example-partial-elimination)]
+      ; -1 (unkonwn) < 0 (false) < 1 (true), so result is at least as "conclusive" previous
+      (is (and (= 0 (emin comparison))
+               (= 1 (emax comparison))))))
+
+(deftest deduce-test
+  (testing "deduce should find last unknown value a true"
+    (let [result (deduce (eliminate example-abstract-sudoku-array))
+          ; we'll inspect the 2 in the 8th row and 5th column
+          index-of-interest [(- 2 1) (- 8 1) (- 5 1)]]
+      ; previously unknown
+      (is (and (= -1 (apply select (cons example-abstract-sudoku-array index-of-interest)))
+      ; now known there's a 1
+               (= 1 (apply select (cons result index-of-interest))))))))
 
 ; example_one_line = '...847.5...5...2.7.4..6..3.....7.3..3.......2..7.1.....5..9..1.8.4...5...1.685...\n'
 ;
@@ -137,18 +166,6 @@
 ;                                ['.', '5', '.', '.', '9', '.', '.', '1', '.'],
 ;                                ['8', '.', '4', '.', '.', '.', '5', '.', '.'],
 ;                                ['.', '1', '.', '6', '8', '5', '.', '.', '.']])
-;
-; example_partial_elimination = np.asarray(
-;     [[ None, False,  None, False, False, False,  None, False,  None],
-;      [ None, False, False,  None, False,  None, False, False, False],
-;      [ None, False,  None,  None, False,  None,  None, False,  None],
-;      [ None, False,  None,  None, False,  None, False, False,  None],
-;      [False, False,  None,  None, False,  None,  None, False, False],
-;      [False, False, False, False,  True, False, False, False, False],
-;      [False, False, False, False, False, False, False,  True, False],
-;      [False, False, False,  None, False,  None, False, False,  None],
-;      [False,  True, False, False, False, False, False, False, False]]
-; )
 ;
 ; example_solution = np.asarray(
 ;     [[1, 3, 2, 8, 4, 7, 9, 5, 6],
@@ -232,18 +249,6 @@
 ;             ungrouped,
 ;             test_array
 ;         )
-;
-;     def test007_eliminate(self):
-;         result = sud.eliminate(example_sudoku3d_bool)
-;         # None < False < True, so result as "conclusive" as answer or more
-;         self.assertTrue(np.all(result[0] >= example_partial_elimination))
-;
-;     def test008_deduce(self):
-;         result = sud.deduce(sud.eliminate(example_sudoku3d_bool))
-;         # previously unknown
-;         self.assertFalse(example_sudoku3d_bool[2 - 1][8 - 1][5 - 1] == True)
-;         # now known there's a 2 in the 8th row and 5th column
-;         self.assertTrue(result[2 - 1][8 - 1][5 - 1])
 ;
 ;     def test009_solve(self):
 ;         np.testing.assert_equal(

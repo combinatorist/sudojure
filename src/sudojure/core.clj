@@ -33,6 +33,64 @@
         transposed (transpose unit-row-sudoku [0 2 1 3])]
        (reshape transposed default-puzzle-shape)))
 
+(defn abstract-box-sudoku
+  "creates a view that indicates the boxes in an abstract sudoku"
+  [abstract-sudoku]
+  ; First converts shape from 9 vals x 9 rows x 9 columns to (9, 3, 3, 3, 3) [unit-rows]
+  (let [unit-row-sudoku
+          (reshape abstract-sudoku (cons default-puzzle-size (concat default-box-shape default-box-shape)))
+  ; Then, swaps middle 2 axes and converts to new (9, 9, 9) [nums x boxes x cells]
+        transposed (transpose unit-row-sudoku [0 1 3 2 4])]
+       (reshape transposed [default-box-size default-box-size default-box-size])))
+
+(defn rotate-puzzle
+  "rotates axes once by pushing first axis to the last position"
+  [sudoku-array]
+  (transpose sudoku-array [1 2 0]))
+
+(defn set-local-eliminate!
+  "marks unknowns true where alternatives have been eliminated in a group (mutable sub-array)"
+  [group]
+  (let [where-true (select group (where-slice (fn [x] (= x 1))))
+        count-true (ecount where-true)
+        occupied? (> count-true 0)]
+       ; taking max with 0, turns -1 (unknown) to 0 (false), ignoring 1 (true)
+       (if occupied? (emap! (fn [x] (max x 0)) group))))
+
+(defn eliminate
+  "marks unknowns false where they would conflict with known values"
+  [sudoku-array]
+  (let [sud-array (mutable sudoku-array)]
+    (for [axis (range 3)]
+      ((for [group (reshape sud-array [default-puzzle-size default-box-size])]
+        (set-local-eliminate! group))
+      (rotate (reshape sud-array [default-box-size default-box-size default-box-size]))))
+
+    (for [group (abstract-box-sudoku sud-array)] (set-local-eliminate! group))
+    ;; somtimes relying on mutability of shape, sometimes not
+    (immutable (abstract-box-sudoku sud-array))))
+
+(defn set-local-deduce!
+  "marks unknowns true where alternatives have been eliminated in a group (mutable sub-array)"
+  [group]
+  (let [where-false (select group (where-slice (fn [x] (= x 0))))
+        count-false (ecount where-false)
+        exhausted? (= count-false (- default-box-size 1))]
+       ; abs turns -1 (unknown) to 1 (true), ignoring 0 (false)
+       (if exhausted? (emap! (abs) group))))
+
+(defn deduce
+  [sudoku-array]
+  (let [sud-array (mutable sudoku-array)]
+    (for [axis (range 3)]
+      ((for [group (reshape sud-array [default-puzzle-size default-box-size])]
+        (set-local-deduce! group))
+      (rotate (reshape sud-array [default-box-size default-box-size default-box-size]))))
+
+    (for [group (abstract-box-sudoku sud-array)] (set-local-deduce! group))
+    ;; somtimes relying on mutability of shape, sometimes not
+    (immutable (abstract-box-sudoku sud-array))))
+
 ; def load(file):
 ;     """
 ;     loads file
@@ -78,66 +136,6 @@
 ;         value_array[value_array == True] = index + 1
 ;
 ;     return sum(array)
-;
-; def rotate(array):
-;     """
-;     rotates axes once by pushing first axis to the last position
-;     """
-;     return np.moveaxis(array, 0, -1)
-;
-; def eliminate(array):
-;     """
-;     marks unknowns false where they would conflict with known values
-;     """
-;     array = array.copy()
-;     for axis in range(3):
-;         groups = array.reshape((puzzle_size, box_size))
-;         for group in groups:
-;             occupied = max(group)
-;             if occupied == True:
-;                 group[group != True] = False
-;
-;         array = groups.reshape((box_size,) * 3)
-;         array = rotate(array)
-;
-;     layers = []
-;     for layer in array:
-;         groups = box_sudoku(layer)
-;         for group in groups:
-;             occupied = max(group)
-;             if occupied == True:
-;                 group[group != True] = False
-;
-;         layers.append(box_sudoku(groups))
-;     array = np.stack(layers)
-;     return array
-;
-; def deduce(array):
-;     """
-;     marks unknowns true where alternatives have been eliminated
-;     """
-;     array = array.copy()
-;     for axis in range(3):
-;         groups = array.reshape((puzzle_size, box_size))
-;         for group in groups:
-;             exhausted = len([x for x in group if x == False])
-;             if exhausted == box_size - 1:
-;                 group[group != False] = True
-;
-;         array = groups.reshape((box_size,) * 3)
-;         array = rotate(array)
-;
-;     layers = []
-;     for layer in array:
-;         groups = box_sudoku(layer)
-;         for group in groups:
-;             exhausted = len([x for x in group if x == False])
-;             if exhausted == box_size - 1:
-;                 group[group != False] = True
-;
-;         layers.append(box_sudoku(groups))
-;     array = np.stack(layers)
-;     return array
 ;
 ; def resolve(array):
 ;     """
