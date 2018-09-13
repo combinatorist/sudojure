@@ -21,7 +21,7 @@
   (let [values (puzzle-value-list sudoku-array)
         ; implementing 3 valued logic as [-1, 0, 1] for now
         comparisons (map (fn [x] (eq sudoku-array x)) values)]
-       (array comparisons)))
+       (emap (fn [x] (if (= x 0) -1 x)) (array comparisons))))
 
 (defn box-sudoku
   "creates a view that indicates the boxes"
