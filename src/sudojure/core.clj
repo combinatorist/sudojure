@@ -1,5 +1,7 @@
 (ns sudojure.core
-  (:use clojure.core.matrix))
+  (:require [clojure.core.matrix :refer :all]
+            [clojure.core.matrix.selection :refer :all]))
+
 
 (defn puzzle-value-list
   "returns the cannonical values for an array"
