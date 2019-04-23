@@ -144,6 +144,7 @@
       ; -1 (unkonwn) < 0 (false) < 1 (true), so result is at least as "conclusive" previous
       (is (and (= 0 (emin comparison))
                (= 1 (emax comparison))))))
+(deftest set-local-deduce!-test )
 
 (deftest deduce-test
   (testing "deduce should find last unknown value a true"
